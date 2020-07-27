@@ -1,0 +1,48 @@
+- id: '1595619100001'
+  alias: Lights ON
+  description: ''
+  trigger:
+  - event: sunset
+    offset: -00:15:00
+    platform: sun
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.fairly_light
+    service: light.turn_on
+  - data: {}
+    entity_id: light.bed_lamp
+    service: light.turn_on
+  mode: single
+- id: '1595619333561'
+  alias: Fairly Off
+  description: ''
+  trigger:
+  - at: '23:10:00'
+    platform: time
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.fairly_light
+    service: light.turn_off
+  mode: single
+- id: '1595777066536'
+  alias: ALARM SHED
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.shed_sensor
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: device
+    device_id: 0f2dcf6fe8204513a05597c474b5bbed
+    domain: device_tracker
+    entity_id: device_tracker.sm_g970f
+    type: is_not_home
+  action:
+  - data:
+      message: Shed is open!
+      title: SHED ALARM!
+    service: notify.notify
+  mode: single

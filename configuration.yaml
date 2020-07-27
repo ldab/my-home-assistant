@@ -1,0 +1,152 @@
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# HTTP component
+http:
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+
+sensor:
+# GitHub
+  - platform: github
+    url: 'https://github.com/ldab/my-home-assistant'
+    access_token: !secret github_access_token
+    repositories:
+      - path: 'home-assistant/core'
+
+# BLE      
+  - platform: mqtt
+    name: "BLE Temp"
+    state_topic: "/ble/temp"
+    unit_of_measurement: "°C"  # "F" if using Fahrenheit
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    device_class: temperature
+  - platform: mqtt
+    name: "BLE Hum"
+    state_topic: "/ble/hum"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    unit_of_measurement: "%"  # "F" if using Fahrenheit
+    device_class: humidity
+  - platform: mqtt
+    name: "BLE Batt"
+    state_topic: "/ble/batt"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    unit_of_measurement: "%"  # "F" if using Fahrenheit
+    device_class: battery
+  - platform: mqtt
+    name: "BLE RSSI"
+    state_topic: "/ble/rssi"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    unit_of_measurement: "dBm"  # "F" if using Fahrenheit
+    device_class: signal_strength
+    
+  - platform: mqtt
+    name: "Logger Temp"
+    state_topic: "logger/temp"
+    unit_of_measurement: "°C"  # "F" if using Fahrenheit
+    device_class: temperature
+  - platform: mqtt
+    name: "Logger Hum"
+    state_topic: "logger/hum"
+    unit_of_measurement: "%"  # "F" if using Fahrenheit
+    device_class: humidity
+  - platform: mqtt
+    name: "Logger Lux"
+    state_topic: "logger/lux"
+    unit_of_measurement: "lux"  # "F" if using Fahrenheit
+    device_class: illuminance    
+  - platform: mqtt
+    name: "Logger RSSI"
+    state_topic: "logger/RSSI"
+    unit_of_measurement: "dBm"  # "F" if using Fahrenheit
+    device_class: signal_strength  
+
+# iSpindel
+  - platform: mqtt
+    name: "iSpindel Temp"
+    state_topic: "ispindel/iSpindel000/temperature"
+    value_template: "{{ value_json | round(2) }}"
+    unit_of_measurement: "°C"  # "F" if using Fahrenheit
+    device_class: temperature
+  - platform: mqtt
+    name: "iSpindel Tilt"
+    state_topic: "ispindel/iSpindel000/tilt"
+    value_template: "{{ value_json | round(2) }}"
+    unit_of_measurement: "°"
+  - platform: mqtt
+    name: "iSpindel SG"
+    unit_of_measurement: "."
+    state_topic: "ispindel/iSpindel000/gravity"
+    value_template: "{{ value_json | round(4) }}"
+  - platform: mqtt
+    name: "iSpindel Batt"
+    state_topic: "ispindel/iSpindel000/battery"
+    value_template: "{{ value_json | round(2) }}"
+    unit_of_measurement: "V"
+    device_class: battery
+  - platform: mqtt
+    name: "iSpindel RSSI"
+    state_topic: "ispindel/iSpindel000/RSSI"
+    unit_of_measurement: "dBm"
+    device_class: signal_strength 
+    
+# System Monitor
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+        arg: /home
+      - type: memory_use_percent
+      - type: swap_use_percent
+      - type: processor_use
+    
+light:
+  - platform: mqtt
+    name: "Bed Lamp"
+    state_topic: "stat/plug/RESULT"  
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/plug/POWER"
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: "tele/plug/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    qos: 1
+    retain: false
+    
+  - platform: mqtt
+    name: "Fairly Light"
+    state_topic: "stat/fairly_4D70DA/RESULT"  
+    value_template: "{{ value_json.POWER }}"
+    command_topic: "cmnd/fairly_4D70DA/POWER"
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: "tele/fairly_4D70DA/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    qos: 1
+    retain: false
+
+binary_sensor:
+  - platform: mqtt
+    name: "Shed Sensor"
+    state_topic: "stat/door/STATUS"
+    payload_on: "open"
+    payload_off: "close"
+    expire_after: 172800
+    device_class: door   # also: window, garage_door or opening
+    qos: 1
