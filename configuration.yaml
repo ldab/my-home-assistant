@@ -3,9 +3,9 @@
 default_config:
 
 # HTTP component
-http:
-  ssl_certificate: /ssl/fullchain.pem
-  ssl_key: /ssl/privkey.pem
+#http:
+  #ssl_certificate: /ssl/fullchain.pem
+  #ssl_key: /ssl/privkey.pem
 
 # Text to speech
 tts:
@@ -16,15 +16,48 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-
 sensor:
 # GitHub
-  - platform: github
-    url: 'https://github.com/ldab/my-home-assistant'
-    access_token: !secret github_access_token
-    repositories:
-      - path: 'home-assistant/core'
+#  - platform: github
+#    url: 'https://github.com/ldab/my-home-assistant'
+#    access_token: !secret github_access_token
+#    repositories:
+#      - path: 'home-assistant/core'
 
+# www.dmi.dk - Live Weather
+  - platform: rest
+    name: "Drogden Fyr Wind"
+    resource: http://dmigw.govcloud.dk/metObs/v1/observation?stationId=06183&parameterId=wind_speed_past1h&latest=
+    headers:
+      X-Gravitee-Api-Key: !secret dmi_token
+    value_template: "{{ value_json[0]['value'] | multiply(1.944) | round(1) }}"
+    unit_of_measurement: "kts"
+    scan_interval: 900
+  - platform: rest
+    name: "Drogden Fyr Dir"
+    resource: http://dmigw.govcloud.dk/metObs/v1/observation?stationId=06183&parameterId=wind_dir_past1h&latest=
+    headers:
+      X-Gravitee-Api-Key: !secret dmi_token
+    value_template: "{{ value_json[0]['value'] | round(0) }}"
+    unit_of_measurement: "°"
+    scan_interval: 900
+  - platform: rest
+    name: "Drogden Fyr Gust"
+    resource: http://dmigw.govcloud.dk/metObs/v1/observation?stationId=06183&parameterId=wind_gust_always_past1h&latest=
+    headers:
+      X-Gravitee-Api-Key: !secret dmi_token
+    value_template: "{{ value_json[0]['value'] | multiply(1.944) | round(1) }}"
+    unit_of_measurement: "kts"
+    scan_interval: 900
+    
+# CPU Temperature
+  - platform: command_line
+    name: CPU Temperature
+    command: "cat /sys/class/thermal/thermal_zone0/temp"
+    # If errors occur, make sure configuration file is encoded as UTF-8
+    unit_of_measurement: "°C"
+    value_template: '{{ value | multiply(0.001) | round(1) }}'
+      
 # BLE      
   - platform: mqtt
     name: "BLE Temp"

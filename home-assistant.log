@@ -1,4 +1,2 @@
-2020-07-27 10:03:05 WARNING (MainThread) [homeassistant.setup] Setup of hassio is taking over 10 seconds.
-2020-07-27 10:03:05 ERROR (MainThread) [homeassistant.components.hassio.handler] Timeout on /homeassistant/options request
-2020-07-27 10:03:11 ERROR (SyncWorker_7) [homeassistant.components.github.sensor] GitHub error for home-assistant/core: 404 {'data': 'Not Found'}
-2020-07-27 10:03:11 ERROR (SyncWorker_7) [homeassistant.components.github.sensor] Error setting up GitHub platform. Check previous errors for details
+2020-07-28 12:24:24 WARNING (MainThread) [homeassistant.setup] Setup of person is taking over 10 seconds.
+2020-07-28 12:24:24 WARNING (MainThread) [homeassistant.setup] Setup of hassio is taking over 10 seconds.
